@@ -51,11 +51,11 @@
   // Show & Set Rules
   #show: cosmos.simple.show-theorion
   #show link: underline
-  // #show figure.where(kind: table): set figure(kind: image)
-  // #show figure.where(kind: raw): set figure(kind: image)
-  #show figure.where(kind: image): set figure(supplement: [Figure])
-  #show figure.where(kind: image): block.with(above: 5mm, below: 5mm)
   #set figure(kind: image)
+  #show figure.where(kind: image): set figure(supplement: [Figure])
+  #show figure.where(kind: image): set block(spacing: 5mm)
+  #show figure.where(kind: image): set place(clearance: 5mm)
+
   #show figure: set par.line(numbering: none)
   #show figure.caption: it => [
     *#it.supplement #context { it.counter.display(it.numbering) }.*
@@ -240,7 +240,10 @@
 
   // normalize affiliations to always be arrays
   #let ensure-array(x) = if type(x) == array { x } else { (x,) }
-  #let authors = authors.map((auth) => { auth.affiliations = ensure-array(auth.affiliation); auth })
+  #let authors = authors.map(auth => {
+    auth.affiliations = ensure-array(auth.affiliation)
+    auth
+  })
 
   #let affiliation-index = {
     let affiliations = authors.map(auth => auth.affiliations).flatten()
@@ -254,7 +257,9 @@
     #(
       authors
         .map(auth => {
-          let affil-indices = auth.affiliations.map(aff => affiliation-index.at(aff) + 1)
+          let affil-indices = auth.affiliations.map(aff => (
+            affiliation-index.at(aff) + 1
+          ))
           auth.name + super(affil-indices.map(i => [#i]).join(","))
         })
         .join(", ", last: " et ")
